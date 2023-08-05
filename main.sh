@@ -44,6 +44,9 @@ for zipFile in $ZIPS; do
     ROOM_TABLE_WS="$5"
     WS_URL="$6"
     AUTHORIZER_ID="$7"
+
+    cat "$functionName.txt"
+
     echo
     echo ">    Intentando eliminar función desactualizada"
     aws lambda get-function --function-name "$functionName" && aws lambda delete-function --function-name "$functionName" || echo ">    Not found $functionName"
