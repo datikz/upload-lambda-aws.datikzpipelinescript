@@ -76,7 +76,10 @@ for zipFile in $ZIPS; do
     [ "$NEED_AUTHENTICATION" = "true" ] && [ "$AUTHORIZER_ID" ] && AUTH_STR=" --authorization-type JWT --authorizer-id $AUTHORIZER_ID "
     echo ">    Configurando ruta para el caso de uso $functionName..."
     INTEGRATION_OBTAINED=$(aws apigatewayv2 get-routes --api-id "$API_GATEWAY_ID" | jq -c '.Items[] | select(.RouteKey=="'"$METHOD $ROUTE"'") | .Target' | sed 's/integrations\///g' | sed 's/"//g')
+    
     if [ -z "$ROUTE"]; then
+        echo "No hay ruta"
+    else
         if [ -z "$INTEGRATION_OBTAINED" ]; then
             echo ">    No se obtuvo ninguna integración o ruta creada previamente, se crearán las respectivas"
             INTEGRATION_ID=$(aws apigatewayv2 create-integration --api-id "$API_GATEWAY_ID" --integration-uri "$arnFunction" --integration-type AWS_PROXY --payload-format-version 2.0 | jq .IntegrationId | sed 's/"//g') &&
