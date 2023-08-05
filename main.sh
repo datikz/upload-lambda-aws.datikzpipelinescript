@@ -78,17 +78,18 @@ for zipFile in $ZIPS; do
     [ "$NEED_AUTHENTICATION" = "true" ] && [ "$AUTHORIZER_ID" ] && AUTH_STR=" --authorization-type JWT --authorizer-id $AUTHORIZER_ID "
     echo ">    Configurando ruta para el caso de uso $functionName..."
     INTEGRATION_OBTAINED=$(aws apigatewayv2 get-routes --api-id "$API_GATEWAY_ID" | jq -c '.Items[] | select(.RouteKey=="'"$METHOD $ROUTE"'") | .Target' | sed 's/integrations\///g' | sed 's/"//g')
-
-    if [ -z "$INTEGRATION_OBTAINED" ]; then
-        echo ">    No se obtuvo ninguna integración o ruta creada previamente, se crearán las respectivas"
-        INTEGRATION_ID=$(aws apigatewayv2 create-integration --api-id "$API_GATEWAY_ID" --integration-uri "$arnFunction" --integration-type AWS_PROXY --payload-format-version 2.0 | jq .IntegrationId | sed 's/"//g') &&
-            echo ">    INTEGRATION_ID : $INTEGRATION_ID" &&
-            ROUTE_ID=$(aws apigatewayv2 create-route --api-id $API_GATEWAY_ID --route-key "$METHOD $ROUTE" --target integrations/$INTEGRATION_ID $AUTH_STR) &&
-            echo ">    ROUTE_ID $ROUTE_ID"
-        aws lambda add-permission --statement-id api-invoke-lambda --action lambda:InvokeFunction --function-name "$arnFunction" --principal apigateway.amazonaws.com --source-arn "arn:aws:execute-api:us-east-1:$AWS_ACCOUNT_ID:$API_GATEWAY_ID/*"
-        aws lambda wait function-updated-v2 --function-name "$arnFunction"
-    else
-        echo ">    Ya había una ruta creada se cambiará la función"
-        INTEGRATION_ID=$(aws apigatewayv2 update-integration --api-id "$API_GATEWAY_ID" --integration-uri "$arnFunction" --integration-id "$INTEGRATION_OBTAINED")
+    if [ -z "$ROUTE"]; then
+        if [ -z "$INTEGRATION_OBTAINED" ]; then
+            echo ">    No se obtuvo ninguna integración o ruta creada previamente, se crearán las respectivas"
+            INTEGRATION_ID=$(aws apigatewayv2 create-integration --api-id "$API_GATEWAY_ID" --integration-uri "$arnFunction" --integration-type AWS_PROXY --payload-format-version 2.0 | jq .IntegrationId | sed 's/"//g') &&
+                echo ">    INTEGRATION_ID : $INTEGRATION_ID" &&
+                ROUTE_ID=$(aws apigatewayv2 create-route --api-id $API_GATEWAY_ID --route-key "$METHOD $ROUTE" --target integrations/$INTEGRATION_ID $AUTH_STR) &&
+                echo ">    ROUTE_ID $ROUTE_ID"
+            aws lambda add-permission --statement-id api-invoke-lambda --action lambda:InvokeFunction --function-name "$arnFunction" --principal apigateway.amazonaws.com --source-arn "arn:aws:execute-api:us-east-1:$AWS_ACCOUNT_ID:$API_GATEWAY_ID/*"
+            aws lambda wait function-updated-v2 --function-name "$arnFunction"
+        else
+            echo ">    Ya había una ruta creada se cambiará la función"
+            INTEGRATION_ID=$(aws apigatewayv2 update-integration --api-id "$API_GATEWAY_ID" --integration-uri "$arnFunction" --integration-id "$INTEGRATION_OBTAINED")
+        fi
     fi
 done
