@@ -44,12 +44,9 @@ for zipFile in $ZIPS; do
     ROOM_TABLE_WS="$5"
     WS_URL="$6"
     AUTHORIZER_ID="$7"
-    cat "$functionName.txt" 
-    echo
     echo ">    Intentando eliminar función desactualizada"
-    aws lambda get-function --function-name "$functionName" && aws lambda delete-function --function-name "$functionName" || echo ">    Not found $functionName"
-    echo ">    Intentando eliminar función desactualizada finalizada"
-    echo
+    aws lambda get-function --function-name "$functionName" && aws lambda delete-function --function-name "$functionName" || echo ">    No se encontró la función con $functionName"
+    echo ">    -Intentando eliminar función desactualizada-"
 
     arnFunction=$(aws lambda get-function --function-name "$functionName-$STAGE" | jq .Configuration | jq .FunctionArn | sed 's/"//g')
 
