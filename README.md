@@ -1,21 +1,20 @@
+# Script to upload lambda functions to AWS
 
-# Script para subir a AWS lambda functions
-
-Realiza la gestión de configurar y subir las funciones lambda según los casos de uso documentados y programados
+Performs the management of configuring and uploading lambda functions according to documented and programmed use cases.
 
 
-## Pseudocodigo
+## Pseudo code
 
 ~~~
-- Eliminar posibles funciones relacionadas desactualizadas
-- Leer metadata
-- Existe función con el mismo nombre?
+- Remove possible outdated related functions
+- Read metadata
+- Does function with the same name exist?
 
     NO:
-    - Crear nueva función lambda con toda la configuración requerida
+    - Create new lambda function with all required configuration.
 
-    SI:
-    - Actualizar información de la metadata
-- Obtener identificador
-- Agregar tags
+    YES:
+    - Update metadata information
+- Get identifier
+- Add tags
 ~~~
