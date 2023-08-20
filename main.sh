@@ -74,7 +74,7 @@ for zipFile in $ZIPS; do
     echo ">    Configurando ruta para el caso de uso $functionName..."
     INTEGRATION_OBTAINED=$(aws apigatewayv2 get-routes --api-id "$API_GATEWAY_ID" | jq -c '.Items[] | select(.RouteKey=="'"$METHOD $ROUTE"'") | .Target' | sed 's/integrations\///g' | sed 's/"//g')
     
-    if [ -z "$ROUTE"]; then
+    if [ -z "$ROUTE" ]; then
         echo ">    No hay ruta, por lo que no se intentará buscar ninguna integración"
     else
         if [ -z "$INTEGRATION_OBTAINED" ]; then
